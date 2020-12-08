@@ -1,8 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using WebConventerTemperature.Models;
@@ -13,17 +16,15 @@ namespace WebConventerTemperature.Controllers
 {
     public class HomeController : Controller
     {
-        private readonly ILogger<HomeController> _logger;
-
         private readonly IValidationServices _validationServices;
-        public HomeController(IValidationServices validationServices)
+        
+        private readonly IWebHostEnvironment _appEnvironment;
+        public HomeController(IValidationServices validationServices, IWebHostEnvironment appEnvironment)
         {
             _validationServices = validationServices;
+            _appEnvironment = appEnvironment;
         }
-        //public HomeController(ILogger<HomeController> logger)
-        //{
-        //    _logger = logger;
-        //}
+
         public IActionResult Index()
         {
             return View();
@@ -68,10 +69,52 @@ namespace WebConventerTemperature.Controllers
             }
             else
             {
-                return new HtmlResult("<h2> Статус ошибки 400. Некорректное значение!</h2>");
+                return new HtmlResult("<h2> Статус ошибки 404. Некорректное значение!</h2>");
             }
 
             return new HtmlResult($"<h2>Температура по Цельсию - {_celsiusValue}. Конвертируем в Фаренгейт: \n\n\nТемпература по Фаренгейту - {_fahrenheitValue}<h2>");
+        }
+
+        public FileResult GetStream(double _celsiusValue)
+        {
+
+            string fileType = "application/txt";
+            string fileName = "file.txt";
+            string path = Path.Combine(_appEnvironment.ContentRootPath, "Files/file.TXT");
+
+            double _fahrenheitValue = (_celsiusValue * 9 / 5) + 32;
+
+            using (FileStream fstream = new FileStream(path, FileMode.OpenOrCreate))
+            {
+                byte[] input = Encoding.Default.GetBytes($"{_celsiusValue} C°  =>  {_fahrenheitValue} F° ");
+               
+                fstream.Write(input, 0, input.Length);
+            }
+            
+            FileStream fs = new FileStream(path, FileMode.Open);
+
+            return File(fs, fileType, fileName);
+
+        }
+
+        public FileResult GetBytes(double _celsiusValue)
+        {
+            string fileType = "application/txt";
+            string fileName = "file.txt";
+            string path = Path.Combine(_appEnvironment.ContentRootPath, "Files/TXT");
+
+            double _fahrenheitValue = (_celsiusValue * 9 / 5) + 32;
+
+            using (FileStream fstream = new FileStream(path, FileMode.OpenOrCreate))
+            {
+                byte[] input = Encoding.Default.GetBytes($"{_celsiusValue} C°  =>  {_fahrenheitValue} F° ");
+
+                fstream.Write(input, 0, input.Length);
+            }
+
+            byte[] mas = System.IO.File.ReadAllBytes(path);
+            
+            return File(mas, fileType, fileName);
         }
         public IActionResult Privacy()
         {
