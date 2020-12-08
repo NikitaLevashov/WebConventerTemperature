@@ -5,31 +5,13 @@
 <form method="post" action="~/Home/Index">
     <div class="text-center">
         <h1 class="display-4">Welcome</h1>
-        <p><label>Сelsius Value</label></p>
+        <p><label>Сelsius Value °С</label></p>
         <p><input type="number" asp-for="СelsiusValue" /></p>
 
         <p><input type="submit" value="conventer" asp-for="Conventer" /></p>
-        <p><label>FahrenheitValue</label></p>
+        <p><label>Fahrenheit Value °F</label></p>
         <p><input type="number" step="any" asp-for="@ViewData["FahrenheitValue"]" /></p>
 
     </div>
 </form>
 
-
- string fullHtmlCode = "
-<!DOCTYPE html>
-<html>
-<head>
-    ";
-    fullHtmlCode += "
-    <title>Главная страница</title>";
-    fullHtmlCode += "
-    <meta charset=utf-8 />";
-    fullHtmlCode += "
-</head>
-<body>
-    ";
-    fullHtmlCode += htmlCode;
-    fullHtmlCode += "
-</body>
-</html>";

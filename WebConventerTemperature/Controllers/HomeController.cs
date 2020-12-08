@@ -57,24 +57,21 @@ namespace WebConventerTemperature.Controllers
             return Redirect("http://it-academy.by");
         }
 
-        public HtmlResult ActionResultIndexHtml(ConventerTemperature conv)
+        public HtmlResult ActionResultIndexHtml(double _celsiusValue)
         {
-            if (conv.Conventer == "conventer")
-            {
-                if (_validationServices.AbsolutabsoluteMinimum(conv.СelsiusValue))
-                {
-                    conv.FahrenheitValue = (conv.СelsiusValue * 9 / 5) + 32;
-                }
-                else
-                {
-                    return new HtmlResult("<h2> Статус ошибки 400. Некорректное значение!</h2>");
-                }
+            //~Home/ActionResultIndexHtml?_celsiusValue=12.3
+            double _fahrenheitValue;
 
+            if (_validationServices.AbsolutabsoluteMinimum(_celsiusValue))
+            {
+                _fahrenheitValue = (_celsiusValue * 9 / 5) + 32;
+            }
+            else
+            {
+                return new HtmlResult("<h2> Статус ошибки 400. Некорректное значение!</h2>");
             }
 
-            ViewData["FahrenheitValue"] = conv.FahrenheitValue;
-
-            return new HtmlResult("");
+            return new HtmlResult($"<h2>Температура по Цельсию - {_celsiusValue}. Конвертируем в Фаренгейт: \n\n\nТемпература по Фаренгейту - {_fahrenheitValue}<h2>");
         }
         public IActionResult Privacy()
         {
