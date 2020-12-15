@@ -23,6 +23,8 @@ namespace WebConventerTemperature.Controllers
         private readonly IValidationServices _validationServices;
 
         private readonly IWebHostEnvironment _appEnvironment;
+
+        static double _fahrenheitValue;
         public HomeController(IValidationServices validationServices, IWebHostEnvironment appEnvironment)
         {
             _validationServices = validationServices;
@@ -37,7 +39,6 @@ namespace WebConventerTemperature.Controllers
         [HttpPost]
         public IActionResult Index(ConventerTemperature conv)
         {
-
             if (conv.Conventer == "conventer")
             {
                 if (_validationServices.AbsolutabsoluteMinimum(conv.СelsiusValue))
@@ -54,6 +55,7 @@ namespace WebConventerTemperature.Controllers
             ViewData["FahrenheitValue"] = conv.FahrenheitValue;
 
             return View();
+                        
         }
 
         [HttpGet]
@@ -77,11 +79,14 @@ namespace WebConventerTemperature.Controllers
             }
 
             return new HtmlResult($"<h2>Температура по Цельсию - {_celsiusValue}. Конвертируем в Фаренгейт: \n\n\nТемпература по Фаренгейту - {_fahrenheitValue}<h2>");
+
         }
 
 
-        public ActionResult GetFiles(int _celsiusValue, FileType file)
+        public IActionResult GetFiles(int _celsiusValue, FileType file)
         {
+            //~/ Home/GetFiles?_celsiusValue=5&zip
+
             string fileZipType = "application/zip";
             string fileType = "application/txt";
             string fileName = "text.txt";
@@ -89,7 +94,14 @@ namespace WebConventerTemperature.Controllers
             string path = Path.Combine(_appEnvironment.ContentRootPath, "Files/text.txt");
             string pathZip = Path.Combine(_appEnvironment.ContentRootPath, "Files/text.zip");
 
-            double _fahrenheitValue = (_celsiusValue * 9 / 5) + 32;
+            if (_validationServices.AbsolutabsoluteMinimum(_celsiusValue))
+            {
+                _fahrenheitValue = (_celsiusValue * 9 / 5) + 32;
+            }
+            else
+            {
+                return new HtmlResult("<h2> Статус ошибки 404. Некорректное значение!</h2>");
+            }
 
             using (FileStream fstream = new FileStream(path, FileMode.OpenOrCreate))
             {
@@ -141,9 +153,6 @@ namespace WebConventerTemperature.Controllers
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
     
-    
-      
     }
     
-
 }

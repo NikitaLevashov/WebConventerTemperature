@@ -7,6 +7,6 @@ namespace WebConventerTemperature.Services
 {
     public interface IValidationServices
     {
-        public bool AbsolutabsoluteMinimum(double value);
+        public bool AbsolutabsoluteMinimum(int value);
     }
 }

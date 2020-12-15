@@ -8,9 +8,9 @@ namespace WebConventerTemperature.Services
     public class ValidationServices : IValidationServices
     {
         const double _min = -273.15;
-        public bool AbsolutabsoluteMinimum (double value)
+        public bool AbsolutabsoluteMinimum (int value)
         {
-            if( value < _min)
+            if( value < _min )
             {
                 return false;
             }
