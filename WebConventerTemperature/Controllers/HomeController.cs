@@ -41,7 +41,7 @@ namespace WebConventerTemperature.Controllers
         {
             if (conv.Conventer == "conventer")
             {
-                if (_validationServices.AbsolutabsoluteMinimum(conv.СelsiusValue))
+                if (_validationServices.AbsoluteMinimum(conv.СelsiusValue))
                 {
                     conv.FahrenheitValue = (conv.СelsiusValue * 9 / 5) + 32;
                 }
@@ -69,7 +69,7 @@ namespace WebConventerTemperature.Controllers
             //~Home/ActionResultIndexHtml?_celsiusValue=12.3
             double _fahrenheitValue;
 
-            if (_validationServices.AbsolutabsoluteMinimum(_celsiusValue))
+            if (_validationServices.AbsoluteMinimum(_celsiusValue))
             {
                 _fahrenheitValue = (_celsiusValue * 9 / 5) + 32;
             }
@@ -94,7 +94,7 @@ namespace WebConventerTemperature.Controllers
             string path = Path.Combine(_appEnvironment.ContentRootPath, "Files/text.txt");
             string pathZip = Path.Combine(_appEnvironment.ContentRootPath, "Files/text.zip");
 
-            if (_validationServices.AbsolutabsoluteMinimum(_celsiusValue))
+            if (_validationServices.AbsoluteMinimum(_celsiusValue))
             {
                 _fahrenheitValue = (_celsiusValue * 9 / 5) + 32;
             }

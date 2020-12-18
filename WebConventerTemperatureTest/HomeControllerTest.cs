@@ -15,45 +15,66 @@ namespace WebConventerTemperatureTest
     public class HomeControllerTest
     {
         [TestMethod]
-        public void IndexReturnsAViewResult()
+        public void AbsoluteMinimum_AddTemperatureValue_ReturnBoolValue()
+        {
+            // Arrange
+            int a = 274;
+            int b = 15;
+            bool expectedFromA = false;
+            bool expectedFromB = true;
+            var mockMin = new Mock<IValidationServices>();
+            
+            // Act
+            var validation = new ValidationServices();
+            bool i = validation.AbsoluteMinimum(a);
+            bool j = validation.AbsoluteMinimum(b);
+
+            // Assert
+            mockMin.Verify(min => min.AbsoluteMinimum(It.IsAny<int>()), Times.Once);
+            Assert.AreEqual(a, expectedFromA);
+            Assert.AreEqual(b, expectedFromB);
+
+        }
+   
+        [TestMethod]
+        public void Index_ConvertTemperature—elsiusFromFahrenheit_ReturnsViewResultFahrenheit()
         {
             // Arrange
             var mock1 = new Mock<IWebHostEnvironment>();
             var mock2 = new Mock<IValidationServices>();
             ConventerTemperature conv = new ConventerTemperature();
-            
             var controller = new HomeController(mock2.Object, mock1.Object);
 
             // Act
             var result = controller.Index(conv);
 
             // Assert
-            var badRequestResult = result as ViewResult;
-            Assert.IsNotNull(badRequestResult, "BadRequestObjectResult");
-            Assert.IsNotInstanceOfType(badRequestResult, typeof(ViewResult));
-       
+            conv.Conventer = "conventer";
+            
+            var goodRequestResult = result as ViewResult;
+            Assert.IsNotNull(goodRequestResult, "GoodRequestObjectResult");
+            Assert.IsNotInstanceOfType(goodRequestResult, typeof(ViewResult));
+     
         }
-
-        public void ActionResultIndexHtmlReturnsHtmlResult()
+        public void Index_ConvertTemperature—elsiusFromFahrenheit_ReturnsBadRequest()
         {
             // Arrange
             var mock1 = new Mock<IWebHostEnvironment>();
             var mock2 = new Mock<IValidationServices>();
-            int item = 12;
-
+            ConventerTemperature conv = new ConventerTemperature();
             var controller = new HomeController(mock2.Object, mock1.Object);
 
             // Act
-            var result = controller.ActionResultIndexHtml(item);
+            var result = controller.Index(conv);
+            conv.Conventer = "itititit";
 
             // Assert
-            var badRequestResult = result as HtmlResult;
+            var badRequestResult = result as BadRequestObjectResult;
             Assert.IsNotNull(badRequestResult, "BadRequestObjectResult");
-            Assert.IsNotInstanceOfType(badRequestResult, typeof(HtmlResult));
-
+            Assert.IsNotInstanceOfType(badRequestResult, typeof(BadRequestObjectResult));
         }
 
-        public void GetFilesReturnsFileView()
+        public void GetFiles_ConvertTemperatureAndReturnFile_ReturnsFileView()
         {
             // Arrange
             var mock1 = new Mock<IWebHostEnvironment>();
@@ -67,31 +88,49 @@ namespace WebConventerTemperatureTest
             var result = controller.GetFiles(item, file);
 
             // Assert
-            var badRequestResult = result as ViewResult;
-            Assert.IsNotNull(badRequestResult, "BadRequestObjectResult");
-            Assert.IsNotInstanceOfType(badRequestResult, typeof(ViewResult));
+            var requestResult = result as IActionResult;
+            Assert.IsNotNull(requestResult, "RequestObjectResult");
+            Assert.IsNotInstanceOfType(requestResult, typeof(IActionResult));
 
         }
-
-        [TestMethod]
-        public void AbsolutabsoluteMinimumReturnBool()
+        public void ActionResultIndexHtml_ConvertTemperature—elsiusFromFahrenheit_ReturnsHtmlResultFahrenheit()
         {
             // Arrange
-            var mock1 = new Mock<IValidationServices>();
-            int item = 12;
-            mock1.Setup(x => x.AbsolutabsoluteMinimum(item));
-
-            IValidationServices val = null;
+            var mock1 = new Mock<IWebHostEnvironment>();
+            var mock2 = new Mock<IValidationServices>();
+            ConventerTemperature conv = new ConventerTemperature();
+            var controller = new HomeController(mock2.Object, mock1.Object);
 
             // Act
-            var result = val.AbsolutabsoluteMinimum(item);
+
+            var result = controller.About();
 
             // Assert
-            var badRequestResult = result;
-            Assert.IsNotNull(badRequestResult, "BadRequestObjectResult");
-            Assert.IsNotInstanceOfType(badRequestResult, typeof(bool));
+            var requestResult = result as RedirectResult;
+            Assert.IsNotNull(requestResult, "RedirectResult");
+            Assert.IsNotInstanceOfType(requestResult, typeof(RedirectResult));
 
         }
-    
+        public void About_Redirect_ItAcademyView()
+        {
+            // Arrange
+            var mock1 = new Mock<IWebHostEnvironment>();
+            var mock2 = new Mock<IValidationServices>();
+            ConventerTemperature conv = new ConventerTemperature();
+            var controller = new HomeController(mock2.Object, mock1.Object);
+
+            // Act
+            int item = 32;
+            var result = controller.ActionResultIndexHtml(item);
+
+            // Assert
+            var requestResult = result as HtmlResult;
+            Assert.IsNotNull(requestResult, "HtmlRequestObjectResult");
+            Assert.IsNotInstanceOfType(requestResult, typeof(HtmlResult));
+
+        }
+
+
+
     }
 }

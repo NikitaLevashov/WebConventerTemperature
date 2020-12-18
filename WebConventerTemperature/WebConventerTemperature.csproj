@@ -9,11 +9,6 @@
     <Folder Include="Files\" />
   </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="EInfrastructure.Core.Compress.ICSharpCode" Version="2.3.6" />
-    <PackageReference Include="Ionic.Zip" Version="1.9.1.8" />
-  </ItemGroup>
-
 
 
 </Project>
