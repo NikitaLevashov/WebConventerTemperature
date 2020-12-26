@@ -15,122 +15,78 @@ namespace WebConventerTemperatureTest
     public class HomeControllerTest
     {
         [TestMethod]
-        public void AbsoluteMinimum_AddTemperatureValue_ReturnBoolValue()
+        public void TemperatureConverter_ConvertTemperatureÑelsiusFromFahrenheit_ReturnsViewResultFahrenheit()
         {
             // Arrange
-            int a = 274;
-            int b = 15;
-            bool expectedFromA = false;
-            bool expectedFromB = true;
-            var mockMin = new Mock<IValidationServices>();
-            
-            // Act
-            var validation = new ValidationServices();
-            bool i = validation.AbsoluteMinimum(a);
-            bool j = validation.AbsoluteMinimum(b);
-
-            // Assert
-            mockMin.Verify(min => min.AbsoluteMinimum(It.IsAny<int>()), Times.Once);
-            Assert.AreEqual(a, expectedFromA);
-            Assert.AreEqual(b, expectedFromB);
-
-        }
-   
-        [TestMethod]
-        public void Index_ConvertTemperatureÑelsiusFromFahrenheit_ReturnsViewResultFahrenheit()
-        {
-            // Arrange
-            var mock1 = new Mock<IWebHostEnvironment>();
-            var mock2 = new Mock<IValidationServices>();
-            ConventerTemperature conv = new ConventerTemperature();
-            var controller = new HomeController(mock2.Object, mock1.Object);
+            var mockValidationServicesTrue = new Mock<IValidationServices>();
+            var mockValidationServicesFalse = new Mock<IValidationServices>();
+            TemperatureModel modelTemperature = new TemperatureModel();
+            var controller = new HomeController(mockValidationServicesTrue.Object);
+            mockValidationServicesTrue.Setup(repo => repo.IsValidTemperature(12)).Returns(true);
+            mockValidationServicesFalse.Setup(repo => repo.IsValidTemperature(280)).Returns(false);
 
             // Act
-            var result = controller.Index(conv);
+            var result = controller.TemperatureConverter(modelTemperature);
 
             // Assert
-            conv.Conventer = "conventer";
-            
+            mockValidationServicesTrue.Verify(min => min.IsValidTemperature(It.IsAny<int>()), Times.Once);
+            mockValidationServicesFalse.Verify(min => min.IsValidTemperature(It.IsAny<int>()), Times.Once);
             var goodRequestResult = result as ViewResult;
-            Assert.IsNotNull(goodRequestResult, "GoodRequestObjectResult");
-            Assert.IsNotInstanceOfType(goodRequestResult, typeof(ViewResult));
-     
+            Assert.IsNotNull(goodRequestResult);
         }
-        public void Index_ConvertTemperatureÑelsiusFromFahrenheit_ReturnsBadRequest()
+        public void About_ConvertTemperatureÑelsiusFromFahrenheit_ReturnsItAcademyView()
         {
             // Arrange
-            var mock1 = new Mock<IWebHostEnvironment>();
-            var mock2 = new Mock<IValidationServices>();
-            ConventerTemperature conv = new ConventerTemperature();
-            var controller = new HomeController(mock2.Object, mock1.Object);
+            var mockValidationServices = new Mock<IValidationServices>();
+            TemperatureModel conv = new TemperatureModel();
+            var controller = new HomeController(mockValidationServices.Object);
 
             // Act
-            var result = controller.Index(conv);
-            conv.Conventer = "itititit";
-
-            // Assert
-            var badRequestResult = result as BadRequestObjectResult;
-            Assert.IsNotNull(badRequestResult, "BadRequestObjectResult");
-            Assert.IsNotInstanceOfType(badRequestResult, typeof(BadRequestObjectResult));
-        }
-
-        public void GetFiles_ConvertTemperatureAndReturnFile_ReturnsFileView()
-        {
-            // Arrange
-            var mock1 = new Mock<IWebHostEnvironment>();
-            var mock2 = new Mock<IValidationServices>();
-            int item = 12;
-            FileType file = new FileType();
-            var controller = new HomeController(mock2.Object, mock1.Object);
-
-
-            // Act
-            var result = controller.GetFiles(item, file);
-
-            // Assert
-            var requestResult = result as IActionResult;
-            Assert.IsNotNull(requestResult, "RequestObjectResult");
-            Assert.IsNotInstanceOfType(requestResult, typeof(IActionResult));
-
-        }
-        public void ActionResultIndexHtml_ConvertTemperatureÑelsiusFromFahrenheit_ReturnsHtmlResultFahrenheit()
-        {
-            // Arrange
-            var mock1 = new Mock<IWebHostEnvironment>();
-            var mock2 = new Mock<IValidationServices>();
-            ConventerTemperature conv = new ConventerTemperature();
-            var controller = new HomeController(mock2.Object, mock1.Object);
-
-            // Act
-
             var result = controller.About();
 
             // Assert
-            var requestResult = result as RedirectResult;
-            Assert.IsNotNull(requestResult, "RedirectResult");
-            Assert.IsNotInstanceOfType(requestResult, typeof(RedirectResult));
-
+            var goodRequestResult = result as ViewResult;
+            Assert.IsNotNull(goodRequestResult);
         }
-        public void About_Redirect_ItAcademyView()
+        public void GetFile_ConvertTemperatureAndReturnFile_ReturnsFileView()
         {
             // Arrange
-            var mock1 = new Mock<IWebHostEnvironment>();
-            var mock2 = new Mock<IValidationServices>();
-            ConventerTemperature conv = new ConventerTemperature();
-            var controller = new HomeController(mock2.Object, mock1.Object);
+            var mockValidationServicesTrue = new Mock<IValidationServices>();
+            var mockValidationServicesFalse = new Mock<IValidationServices>();
+            TemperatureModel modelTemperature = new TemperatureModel();
+            var controller = new HomeController(mockValidationServicesTrue.Object);
+            mockValidationServicesTrue.Setup(repo => repo.IsValidTemperature(12)).Returns(true);
+            mockValidationServicesFalse.Setup(repo => repo.IsValidTemperature(280)).Returns(false);
 
             // Act
-            int item = 32;
-            var result = controller.ActionResultIndexHtml(item);
+            var result = controller.TemperatureConverter(modelTemperature);
 
             // Assert
-            var requestResult = result as HtmlResult;
-            Assert.IsNotNull(requestResult, "HtmlRequestObjectResult");
-            Assert.IsNotInstanceOfType(requestResult, typeof(HtmlResult));
+            mockValidationServicesTrue.Verify(min => min.IsValidTemperature(It.IsAny<int>()), Times.Once);
+            mockValidationServicesFalse.Verify(min => min.IsValidTemperature(It.IsAny<int>()), Times.Once);
+            var goodRequestResult = result as ViewResult;
+            Assert.IsNotNull(goodRequestResult);
 
         }
+        public void ActionResultHtml_ConvertTemperatureÑelsiusFromFahrenheit_ReturnsHtmlResultFahrenheit()
+        {
+            // Arrange
+            var mockValidationServicesTrue = new Mock<IValidationServices>();
+            var mockValidationServicesFalse = new Mock<IValidationServices>();
+            TemperatureModel modelTemperature = new TemperatureModel();
+            var controller = new HomeController(mockValidationServicesTrue.Object);
+            mockValidationServicesTrue.Setup(repo => repo.IsValidTemperature(12)).Returns(true);
+            mockValidationServicesFalse.Setup(repo => repo.IsValidTemperature(280)).Returns(false);
 
+            // Act
+            var result = controller.TemperatureConverter(modelTemperature);
 
-
+            // Assert
+            mockValidationServicesTrue.Verify(min => min.IsValidTemperature(It.IsAny<int>()), Times.Once);
+            mockValidationServicesFalse.Verify(min => min.IsValidTemperature(It.IsAny<int>()), Times.Once);
+            var goodRequestResult = result as HtmlResult;
+            Assert.IsNotNull(goodRequestResult);
+        }
+     
     }
 }

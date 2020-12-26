@@ -11,8 +11,6 @@ using Microsoft.Extensions.Logging;
 using WebConventerTemperature.Models;
 using WebConventerTemperature.Services;
 using WebConventerTemperature.Util;
-using WebConventerTemperature.Helper;
-using static WebConventerTemperature.Helper.Helper;
 using System.IO.Compression;
 
 
@@ -22,40 +20,33 @@ namespace WebConventerTemperature.Controllers
     {
         private readonly IValidationServices _validationServices;
 
-        private readonly IWebHostEnvironment _appEnvironment;
-
-        static double _fahrenheitValue;
-        public HomeController(IValidationServices validationServices, IWebHostEnvironment appEnvironment)
+        double _fahrenheitValue;
+        public HomeController(IValidationServices validationServices)
         {
-            _validationServices = validationServices;
-            _appEnvironment = appEnvironment;
+            _validationServices = validationServices ?? throw new ArgumentNullException();
         }
-
         public IActionResult Index()
         {
             return View();
         }
 
-        [HttpPost]
-        public IActionResult Index(ConventerTemperature conv)
+        [HttpGet]
+        public IActionResult TemperatureConverter(TemperatureModel modelTemperature)
         {
-            if (conv.Conventer == "conventer")
+            if (_validationServices.IsValidTemperature(modelTemperature.Value))
             {
-                if (_validationServices.AbsoluteMinimum(conv.СelsiusValue))
-                {
-                    conv.FahrenheitValue = (conv.СelsiusValue * 9 / 5) + 32;
-                }
-                else
-                {
-                    return BadRequest();
-                }
-
+                _fahrenheitValue = Helper.Helper.ConvertTemperature(modelTemperature.Value);
+            }
+            else
+            {
+                return BadRequest();
             }
 
-            ViewData["FahrenheitValue"] = conv.FahrenheitValue;
+            ViewData["СelsiusValue"] = modelTemperature.Value;
+            ViewData["FahrenheitValue"] = _fahrenheitValue;
 
             return View();
-                        
+              
         }
 
         [HttpGet]
@@ -63,49 +54,35 @@ namespace WebConventerTemperature.Controllers
         {
             return Redirect("http://it-academy.by");
         }
-
-        public HtmlResult ActionResultIndexHtml(int _celsiusValue)
+        public HtmlResult ConverterTemperatureReturnHtmlResult(TemperatureModel modelTemperature)
         {
             //~Home/ActionResultIndexHtml?_celsiusValue=12.3
-            double _fahrenheitValue;
-
-            if (_validationServices.AbsoluteMinimum(_celsiusValue))
+            
+            if (_validationServices.IsValidTemperature(modelTemperature.Value))
             {
-                _fahrenheitValue = (_celsiusValue * 9 / 5) + 32;
+                _fahrenheitValue = Helper.Helper.ConvertTemperature(modelTemperature.Value);
             }
             else
             {
-                return new HtmlResult("<h2> Статус ошибки 404. Некорректное значение!</h2>");
+                return new HtmlResult("<h2> Статус ошибки 400. Некорректное значение!</h2>");
             }
 
-            return new HtmlResult($"<h2>Температура по Цельсию - {_celsiusValue}. Конвертируем в Фаренгейт: \n\n\nТемпература по Фаренгейту - {_fahrenheitValue}<h2>");
-
+            return new HtmlResult($"<h2>Температура по Цельсию - {modelTemperature.Value}. Конвертируем в Фаренгейт: \n\n\nТемпература по Фаренгейту - {_fahrenheitValue}<h2>");
         }
-
-
-        public IActionResult GetFiles(int _celsiusValue, FileType file)
+        public IActionResult GetFile(TemperatureModel modelTemperature, FileType file)
         {
-            //~/ Home/GetFiles?_celsiusValue=5&zip
-
-            string fileZipType = "application/zip";
-            string fileType = "application/txt";
-            string fileName = "text.txt";
-            string fileZipName = "text.zip";
-            string path = Path.Combine(_appEnvironment.ContentRootPath, "Files/text.txt");
-            string pathZip = Path.Combine(_appEnvironment.ContentRootPath, "Files/text.zip");
-
-            if (_validationServices.AbsoluteMinimum(_celsiusValue))
+            if (_validationServices.IsValidTemperature(modelTemperature.Value))
             {
-                _fahrenheitValue = (_celsiusValue * 9 / 5) + 32;
+                _fahrenheitValue = Helper.Helper.ConvertTemperature(modelTemperature.Value);
             }
             else
             {
-                return new HtmlResult("<h2> Статус ошибки 404. Некорректное значение!</h2>");
+                return new HtmlResult("<h2> Статус ошибки 400. Некорректное значение!</h2>");
             }
 
-            using (FileStream fstream = new FileStream(path, FileMode.OpenOrCreate))
+            using (FileStream fstream = new FileStream(TextServices.path, FileMode.OpenOrCreate))
             {
-                byte[] input = Encoding.Default.GetBytes($"{_celsiusValue} C°  =>  {_fahrenheitValue} F° ");
+                byte[] input = Encoding.Default.GetBytes($"{modelTemperature.Value} C°  =>  {_fahrenheitValue} F° ");
 
                 fstream.Write(input, 0, input.Length);
             }
@@ -113,34 +90,32 @@ namespace WebConventerTemperature.Controllers
             switch (file)
             {
                 case FileType.txt:
-                    FileStream fileStream = new FileStream(path, FileMode.Open);
-                    return File(fileStream, fileType, fileName);
+                    FileStream fileStream = new FileStream(TextServices.path, FileMode.Open);
+                    return File(fileStream, TextServices.fileType, TextServices.fileName);
 
                 case FileType.streamOfBytes:
-                    byte[] mas = System.IO.File.ReadAllBytes(path);
-                    return File(mas, fileType, fileName);
+                    byte[] mas = System.IO.File.ReadAllBytes(TextServices.path);
+                    return File(mas, TextServices.fileType, TextServices.fileName);
 
                 case FileType.zip:
-
-                    using (FileStream sourceStream = new FileStream(path, FileMode.Open))
+                    using (FileStream sourceStream = new FileStream(TextServices.path, FileMode.Open))
                     {
-                        using (FileStream targetStream = new FileStream(pathZip, FileMode.OpenOrCreate))
+                        using (FileStream targetStream = new FileStream(TextServices.pathZip, FileMode.OpenOrCreate))
                         {
                             using (GZipStream compressionStream = new GZipStream(targetStream, CompressionMode.Compress))
                             {
-                                sourceStream.CopyTo(compressionStream); 
+                                sourceStream.CopyTo(compressionStream);
 
                             }
                         }
                     }
 
-                    FileStream fileStreamZip = new FileStream(pathZip, FileMode.Open);
-                    return File(fileStreamZip, fileZipType, fileZipName);
+                    FileStream fileStreamZip = new FileStream(TextServices.pathZip, FileMode.Open);
+                    return File(fileStreamZip, TextServices.fileZipType, TextServices.fileZipName);
 
+                default:
+                    return BadRequest();
             }
-
-            return BadRequest();
-
         }
         public IActionResult Privacy()
         {
